@@ -1,0 +1,9 @@
+[package]
+name = "fractals"
+version = "0.1.0"
+authors = ["Björn Tegelund <bjorn@tumblbug.com>"]
+
+[dependencies]
+image = "*"
+num = "*"
+clippy = {version = "*", optional = true}
