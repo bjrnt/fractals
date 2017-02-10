@@ -7,3 +7,4 @@ authors = ["Björn Tegelund <bjorn@tumblbug.com>"]
 image = "*"
 num = "*"
 clippy = {version = "*", optional = true}
+rayon = "*"
