@@ -7,23 +7,24 @@ use num::complex::Complex;
 pub struct Julia {
     c: Complex<f32>,
     max_iterations: u32,
+    side_length: u32,
 }
 
 impl Julia {
-    pub fn new(real: f32, imag: f32, max_iters: u32) -> Julia {
+    pub fn new(real: f32, imag: f32, max_iters: u32, side_length: u32) -> Julia {
         Julia {
             c: Complex::new(real, imag),
             max_iterations: max_iters,
+            side_length: side_length,
         }
     }
 
     pub fn draw(&self, img: &mut image::GrayImage) {
-        let side_length = img.width() as f32;
         let scale = 2.5;
 
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            let c_y = y as f32 * scale / side_length - scale / 2.0;
-            let c_x = x as f32 * scale / side_length - scale / 2.0;
+            let c_y = y as f32 * scale / self.side_length - scale / 2.0;
+            let c_x = x as f32 * scale / self.side_length - scale / 2.0;
 
             let mut z = Complex::new(c_x, c_y);
 
