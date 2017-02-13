@@ -23,7 +23,7 @@ fn parallel_images(side_length: u32) {
     let mut iters: Vec<_> = (1..11).collect();
     iters.par_iter_mut().enumerate().for_each(|(i, _)| {
         let mut img_buf = image::ImageBuffer::new(side_length, side_length);
-        let mandel = Mandelbrot::new(MAX_ITERATIONS, side_length);
+        let mandel = Mandelbrot::new(MAX_ITERATIONS, side_length, i as u32);
         mandel.draw(&mut img_buf);
 
         save_image(img_buf, &format!("mandel-{}.png", i));
