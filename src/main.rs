@@ -28,7 +28,7 @@ fn parallel_images(side_length: u32, num_images: u32) {
         mandel.draw(&mut img_buf);
 
         save_image(img_buf, &format!("mandel-{}.png", i));
-        println!("Generate image #{}", i);
+        println!("Completed image #{}", i);
     });
 }
 

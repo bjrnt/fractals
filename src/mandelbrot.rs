@@ -8,6 +8,8 @@ pub struct Mandelbrot {
     side_length: u32,
     image_no: u32,
     no_images: u32,
+    zoom_factor: f32,
+    translate: (f32, f32),
 }
 
 // Domains:
@@ -19,21 +21,27 @@ pub struct Mandelbrot {
 // This ratio is: 3.5:2.0
 impl Mandelbrot {
     pub fn new(max_iters: u32, side_length: u32, image_no: u32, no_images: u32) -> Mandelbrot {
+        let progress = image_no as f32 / no_images as f32;
+        let total_zoom = 200.0;
+        let total_translation = (-0.74 * total_zoom, -0.1495 * total_zoom);
+
+        let translation =
+            (total_translation.0 * progress - total_translation.0 * 1.0 / no_images as f32,
+             total_translation.1 * progress - total_translation.1 * 1.0 / no_images as f32);
+        let zoom_factor = total_zoom * progress - total_zoom * 1.0 / no_images as f32 + 1.0;
+
         Mandelbrot {
             max_iterations: max_iters,
             side_length: side_length,
             image_no: image_no,
             no_images: no_images,
+            zoom_factor: zoom_factor,
+            translate: translation,
         }
     }
 
     fn calculate_luma(&self, x: u32, y: u32) -> u8 {
-        let image_no = self.image_no as f32;
         let side_length = self.side_length as f32;
-        let no_images = self.no_images as f32;
-
-        let total_zoom = 10.0;
-        let total_translation = (-0.72, -0.135);
 
         // Scale x and y from 0..800 to be within (0.0, 1.0)
         let x_scaled = scale(x as f32, (0.0, side_length), (0.0, 1.0));
@@ -43,16 +51,13 @@ impl Mandelbrot {
         let y_domain = (-1.0, 1.0);
         let x_domain = (-2.5, 1.0);
 
-        // Zooming means narrowing the domains
-        let zoom_factor = total_zoom / (no_images / image_no);
-        let y_domain = (y_domain.0 / zoom_factor, y_domain.1 / zoom_factor);
-        let x_domain = (x_domain.0 / zoom_factor, x_domain.1 / zoom_factor);
-
         // Translating means an absolute translation of the domains
-        let translate_x = total_translation.0 / (no_images / image_no);
-        let translate_y = total_translation.1 / (no_images / image_no);
-        let y_domain = (y_domain.0 + translate_y, y_domain.1 + translate_y);
-        let x_domain = (x_domain.0 + translate_x, x_domain.1 + translate_x);
+        let y_domain = (y_domain.0 + self.translate.1, y_domain.1 + self.translate.1);
+        let x_domain = (x_domain.0 + self.translate.0, x_domain.1 + self.translate.0);
+
+        // Zooming means narrowing the domains
+        let y_domain = (y_domain.0 / self.zoom_factor, y_domain.1 / self.zoom_factor);
+        let x_domain = (x_domain.0 / self.zoom_factor, x_domain.1 / self.zoom_factor);
 
         // Grab the point of the mandelbrot domain corresponding to (x, y) and calculate
         let x0 = scale(x_scaled, (0.0, 1.0), x_domain);
