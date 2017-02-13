@@ -2,6 +2,7 @@ extern crate rayon;
 extern crate image;
 extern crate num;
 
+mod utils;
 mod mandelbrot;
 
 use mandelbrot::Mandelbrot;

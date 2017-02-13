@@ -1,11 +1,16 @@
 extern crate image;
 
+use utils::scale;
+
 #[derive(Clone, Debug)]
 pub struct Mandelbrot {
     max_iterations: u32,
     side_length: u32,
 }
 
+// Domains:
+//  x: -2.5 .. 1.0
+//  y: -1.0 .. 1.0
 impl Mandelbrot {
     pub fn new(max_iters: u32, side_length: u32) -> Mandelbrot {
         Mandelbrot {
@@ -15,8 +20,9 @@ impl Mandelbrot {
     }
 
     fn calculate_luma(&self, x: u32, y: u32) -> u8 {
-        let y0 = y as f32 / (self.side_length as f32 / 2.0) - 1.0;
-        let x0 = x as f32 / (self.side_length as f32 / 3.5) - 2.5;
+        // Scales from (0 .. side_length) to Mandelbrot domain
+        let y0 = scale(y as f32, (0.0, self.side_length as f32), (-1.0, 1.0));
+        let x0 = scale(x as f32, (0.0, self.side_length as f32), (-2.5, 1.0));
 
         let mut x = x0;
         let mut y = y0;
