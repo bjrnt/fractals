@@ -23,8 +23,8 @@ impl Mandelbrot {
     pub fn new(max_iters: u32, side_length: u32, image_no: u32, no_images: u32) -> Mandelbrot {
         let progress = image_no as f32 / no_images as f32;
         let progress = progress * progress;
-        let total_zoom = 200.0;
-        let total_translation = (-0.74 * total_zoom, -0.1495 * total_zoom);
+        let total_zoom = 800.0;
+        let total_translation = (-0.7471 * total_zoom, -0.1488 * total_zoom);
 
         let translation = (total_translation.0 * progress, total_translation.1 * progress);
         let zoom_factor = total_zoom * progress;
