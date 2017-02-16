@@ -22,13 +22,12 @@ pub struct Mandelbrot {
 impl Mandelbrot {
     pub fn new(max_iters: u32, side_length: u32, image_no: u32, no_images: u32) -> Mandelbrot {
         let progress = image_no as f32 / no_images as f32;
+        let progress = progress * progress;
         let total_zoom = 200.0;
         let total_translation = (-0.74 * total_zoom, -0.1495 * total_zoom);
 
-        let translation =
-            (total_translation.0 * progress - total_translation.0 * 1.0 / no_images as f32,
-             total_translation.1 * progress - total_translation.1 * 1.0 / no_images as f32);
-        let zoom_factor = total_zoom * progress - total_zoom * 1.0 / no_images as f32 + 1.0;
+        let translation = (total_translation.0 * progress, total_translation.1 * progress);
+        let zoom_factor = total_zoom * progress;
 
         Mandelbrot {
             max_iterations: max_iters,
