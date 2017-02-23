@@ -6,23 +6,25 @@ use utils::scale;
 pub struct Mandelbrot {
     max_iterations: u32,
     side_length: u32,
-    image_no: u32,
-    no_images: u32,
     zoom_factor: f32,
     translate: (f32, f32),
 }
 
-// Domains:
+// The Mandelbrot Fractal is defined within the following domains:
 //  x: -2.5 .. 1.0
 //  y: -1.0 .. 1.0
-
-// When zooming, the x:y ratio (aspect ratio) has to be kept the same
-// to keep the image from looking stretched out.
+// (any point outside of this will always be black)
+// When zooming, the ratio between the rendered x interval and y interval
+// has to be kept the same to keep the image from looking stretched out.
 // This ratio is: 3.5:2.0
+
 impl Mandelbrot {
     pub fn new(max_iters: u32, side_length: u32, image_no: u32, no_images: u32) -> Mandelbrot {
+        // calculate percentage complete based on which frame we're on
         let progress = image_no as f32 / no_images as f32;
+        // this essentially creates a QuadraticIn tween
         let progress = progress * progress;
+
         let total_zoom = 800.0;
         let total_translation = (-0.7471 * total_zoom, -0.1488 * total_zoom);
 
@@ -32,8 +34,6 @@ impl Mandelbrot {
         Mandelbrot {
             max_iterations: max_iters,
             side_length: side_length,
-            image_no: image_no,
-            no_images: no_images,
             zoom_factor: zoom_factor,
             translate: translation,
         }
@@ -42,7 +42,7 @@ impl Mandelbrot {
     fn calculate_luma(&self, x: u32, y: u32) -> u8 {
         let side_length = self.side_length as f32;
 
-        // Scale x and y from 0..800 to be within (0.0, 1.0)
+        // Scale x and y from 0..side_length to be within (0.0, 1.0)
         let x_scaled = scale(x as f32, (0.0, side_length), (0.0, 1.0));
         let y_scaled = scale(y as f32, (0.0, side_length), (0.0, 1.0));
 
@@ -54,7 +54,8 @@ impl Mandelbrot {
         let y_domain = (y_domain.0 + self.translate.1, y_domain.1 + self.translate.1);
         let x_domain = (x_domain.0 + self.translate.0, x_domain.1 + self.translate.0);
 
-        // Zooming means narrowing the domains
+        // Zooming implies a narrowing the domains
+        // (meaning less of it will be visible within the frame)
         let y_domain = (y_domain.0 / self.zoom_factor, y_domain.1 / self.zoom_factor);
         let x_domain = (x_domain.0 / self.zoom_factor, x_domain.1 / self.zoom_factor);
 
