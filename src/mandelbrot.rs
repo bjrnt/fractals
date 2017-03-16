@@ -2,12 +2,13 @@ extern crate image;
 
 use utils::scale;
 
+const MAX_ITERATIONS: u32 = 255;
+
 #[derive(Clone, Debug)]
 pub struct Mandelbrot {
-    max_iterations: u32,
     side_length: u32,
-    zoom_factor: f32,
-    translate: (f32, f32),
+    zoom: f32,
+    translation: (f32, f32),
 }
 
 // The Mandelbrot Fractal is defined within the following domains:
@@ -17,25 +18,15 @@ pub struct Mandelbrot {
 // When zooming, the ratio between the rendered x interval and y interval
 // has to be kept the same to keep the image from looking stretched out.
 // This ratio is: 3.5:2.0
+static X_DOMAIN: (f32, f32) = (-2.5, 1.0);
+static Y_DOMAIN: (f32, f32) = (-1.0, 1.0);
 
 impl Mandelbrot {
-    pub fn new(max_iters: u32, side_length: u32, image_no: u32, no_images: u32) -> Mandelbrot {
-        // calculate percentage complete based on which frame we're on
-        let progress = image_no as f32 / no_images as f32;
-        // this essentially creates a QuadraticIn tween
-        let progress = progress * progress;
-
-        let total_zoom = 800.0;
-        let total_translation = (-0.7471 * total_zoom, -0.1488 * total_zoom);
-
-        let translation = (total_translation.0 * progress, total_translation.1 * progress);
-        let zoom_factor = total_zoom * progress;
-
+    pub fn new(side_length: u32, zoom: f32, translation: (f32, f32)) -> Self {
         Mandelbrot {
-            max_iterations: max_iters,
             side_length: side_length,
-            zoom_factor: zoom_factor,
-            translate: translation,
+            zoom: zoom,
+            translation: translation,
         }
     }
 
@@ -46,18 +37,14 @@ impl Mandelbrot {
         let x_scaled = scale(x as f32, (0.0, side_length), (0.0, 1.0));
         let y_scaled = scale(y as f32, (0.0, side_length), (0.0, 1.0));
 
-        // Translate and scale mandelbrot domain according to the current frame
-        let y_domain = (-1.0, 1.0);
-        let x_domain = (-2.5, 1.0);
-
         // Translating means an absolute translation of the domains
-        let y_domain = (y_domain.0 + self.translate.1, y_domain.1 + self.translate.1);
-        let x_domain = (x_domain.0 + self.translate.0, x_domain.1 + self.translate.0);
+        let y_domain = (Y_DOMAIN.0 + self.translation.1, Y_DOMAIN.1 + self.translation.1);
+        let x_domain = (X_DOMAIN.0 + self.translation.0, X_DOMAIN.1 + self.translation.0);
 
         // Zooming implies a narrowing the domains
         // (meaning less of it will be visible within the frame)
-        let y_domain = (y_domain.0 / self.zoom_factor, y_domain.1 / self.zoom_factor);
-        let x_domain = (x_domain.0 / self.zoom_factor, x_domain.1 / self.zoom_factor);
+        let y_domain = (y_domain.0 / self.zoom, y_domain.1 / self.zoom);
+        let x_domain = (x_domain.0 / self.zoom, x_domain.1 / self.zoom);
 
         // Grab the point of the mandelbrot domain corresponding to (x, y) and calculate
         let x0 = scale(x_scaled, (0.0, 1.0), x_domain);
@@ -68,7 +55,7 @@ impl Mandelbrot {
 
         let mut i = 0;
 
-        for t in 0..self.max_iterations {
+        for t in 0..MAX_ITERATIONS {
             if x * x + y * y >= 2.0 * 2.0 {
                 break;
             }
